@@ -3,9 +3,49 @@
 #17.05.2024
 
 library("tidyverse")
+library(dplyr)
 file_path <- "C:/Users/beste/OneDrive/Masaüstü/shark.csv"
-data <- read.csv(file_path, header = TRUE, sep = ",", quote = "\"")
-summary(data)
+shark <- read.csv(file_path)
+
+rows_with_total <- apply(shark, 1, function(row) any(grepl("total", row, ignore.case = TRUE)))
+
+shark_cleaned <- shark[!rows_with_total, ]
+
+print(shark_cleaned)
+
+
+# Filter data for Townsville and Shark catches
+townsville_shark_data <- subset(shark_cleaned, Area == "Townsville" & SpeciesGroup == "Shark")
+
+# Group data by CalendarYear and calculate total number of sharks caught each year
+shark_catch_per_year <- aggregate(NumberCaught.Total ~ CalendarYear, data = townsville_shark_data, FUN = sum)
+
+barplot(shark_catch_per_year$NumberCaught.Total, names.arg = shark_catch_per_year$CalendarYear,
+        xlab = "Year", ylab = "Number of Sharks Caught", col = "blue",
+        main = "Shark Catch in Townsville Per Year",
+        ylim = c(0, 200),   
+        las = 2,             
+        yaxt = "n")         
+
+axis(2, at = seq(0, 200, by = 20))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#### we tried this with first download then realised we could change rows and collumns before downloading so this part is not needed anymore ####
 
 # Make first cell  Area
 data$X[1] = "Area"
