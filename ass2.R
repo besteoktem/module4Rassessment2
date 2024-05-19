@@ -13,11 +13,10 @@ shark_cleaned <- shark[!rows_with_total, ]
 
 print(shark_cleaned)
 
+#shark tsv
 
-# Filter data for Townsville and Shark catches
 townsville_shark_data <- subset(shark_cleaned, Area == "Townsville" & SpeciesGroup == "Shark")
 
-# Group data by CalendarYear and calculate total number of sharks caught each year
 shark_catch_per_year <- aggregate(NumberCaught.Total ~ CalendarYear, data = townsville_shark_data, FUN = sum)
 
 barplot(shark_catch_per_year$NumberCaught.Total, names.arg = shark_catch_per_year$CalendarYear,
@@ -31,17 +30,71 @@ axis(2, at = seq(0, 200, by = 20))
 
 
 
+#turtle tsv
+
+townsville_turtle_data <- subset(shark_cleaned, Area == "Townsville" & SpeciesGroup == "Turtle")
+
+turtle_catch_per_year <- aggregate(NumberCaught.Total ~ CalendarYear, data = townsville_turtle_data, FUN = sum)
+
+barplot(turtle_catch_per_year$NumberCaught.Total, names.arg = turtle_catch_per_year$CalendarYear,
+        xlab = "Year", ylab = "Number of Turtles Caught", col = "green",
+        main = "Turtle Catch in Townsville Per Year",
+        las = 2)
 
 
 
 
+townsville_total_catch <- aggregate(NumberCaught.Total ~ CalendarYear, data = shark_cleaned[shark_cleaned$Area == "Townsville", ], sum)
+
+# Plot the total catch data
+barplot(townsville_total_catch$NumberCaught.Total, names.arg = townsville_total_catch$CalendarYear,
+        xlab = "Year", ylab = "Total Number of Catch", col = "skyblue",
+        main = "Total Catch in Townsville by Year",
+        las = 2)
+
+# Calculate total catch for each year across all areas
+total_catch_by_year <- aggregate(NumberCaught.Total ~ CalendarYear, data = shark_cleaned, sum)
+
+# Plot the total catch data
+barplot(total_catch_by_year$NumberCaught.Total, names.arg = total_catch_by_year$CalendarYear,
+        xlab = "Year", ylab = "Total Number of Catch", col = "blue",
+        main = "Total Catch Across All Areas by Year")
 
 
+# Plot using ggplot
+ggplot() +
+  geom_bar(data = total_data, aes(x = CalendarYear, y = NumberCaught, fill = "Total"), position = "dodge", width = 0.8) +
+  geom_bar(data = townsville_data, aes(x = CalendarYear, y = NumberCaught, fill = "Townsville"), position = "dodge", width = 0.8) +
+  labs(x = "Year", y = "Total Number of Catch",
+       title = "Total Catch by Area and Year") +
+  scale_fill_manual(values = c("Total" = "blue", "Townsville" = "red")) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate x-axis labels
 
 
+# Calculate total catch by year
+total_data <- shark_cleaned %>%
+  group_by(CalendarYear) %>%
+  summarise(TotalCaught = sum(NumberCaught.Total))
 
+# Calculate Townsville catch by year
+townsville_data <- shark_cleaned %>%
+  filter(Area == "Townsville") %>%
+  group_by(CalendarYear) %>%
+  summarise(TownsvilleCaught = sum(NumberCaught.Total))
 
+# Merge the two datasets
+combined_data <- merge(total_data, townsville_data, by = "CalendarYear", all.x = TRUE)
 
+# Plot using ggplot
+ggplot(combined_data, aes(x = factor(CalendarYear), y = TotalCaught)) +
+  geom_col(aes(fill = "Total"), position = "dodge", width = 0.8) +
+  geom_col(aes(y = TownsvilleCaught, fill = "Townsville"), position = "dodge", width = 0.8) +
+  labs(x = "Year", y = "Total Number of Catch",
+       title = "Total Catch by Area and Year") +
+  scale_fill_manual(values = c("Total" = "skyblue", "Townsville" = "green")) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))  # Rotate x-axis labels
 
 
 
