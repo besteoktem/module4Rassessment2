@@ -1,6 +1,7 @@
 #### Module 4 - Assessment 2 ####
 #beste oktem MB5370
 #17.05.2024
+#data -> https://qfish.fisheries.qld.gov.au/query/number-caught-by-area-calendar-year-and-species-group/table
 
 library("tidyverse")
 library(dplyr)
